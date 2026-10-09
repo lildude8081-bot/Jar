@@ -1,0 +1,124 @@
+/* Fundalul general al borcanului */
+QWidget {
+    background-color: #242535;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #f1f2f6;
+}
+
+/* Capacul Borcanului */
+QWidget#CapacBorcan {
+    background-color: #ff9f43;
+    border-radius: 12px;
+}
+
+/* REZOLVARE RADICALĂ CONTRAST: Fundal negru și text ROȘU APRINS pentru titlu */
+QWidget#CapacBorcan QLabel {
+    color: #ff3333 !important; /* Roșu puternic */
+    background-color: #11111b; /* Fundal negru intens doar pentru scris */
+    font-weight: 900; /* Extra îngroșat */
+    font-size: 15px;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+/* Butoanele de pe capac - Contrast puternic negru/portocaliu */
+QWidget#CapacBorcan QPushButton {
+    background-color: #1e1f29;
+    color: #ff9f43;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+QWidget#CapacBorcan QPushButton:hover {
+    background-color: #ffffff;
+    color: #1e1f29;
+}
+
+/* Rotița de setări de pe capac */
+QWidget#CapacBorcan QPushButton#BtnSettings {
+    background-color: #2f3142;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+/* Etichetele straturilor - Text mărit și evidențiat */
+QLabel {
+    font-weight: bold;
+    font-size: 13px;
+    color: #ffca28; /* Galben auriu luminos pentru titlurile de straturi */
+    padding-left: 2px;
+    margin-top: 5px;
+}
+
+/* Casetele de text (Căutare Cale) - Fundal deschis pentru lizibilitate maximă */
+QLineEdit {
+    background-color: #2f3142;
+    border: 1px solid #57606f;
+    border-radius: 6px;
+    padding: 5px;
+    color: #ffffff;
+    font-size: 13px;
+}
+
+QLineEdit:focus {
+    border: 1px solid #00d2d3; /* Margine cyan când scrii în ea */
+}
+
+/* Săgețile de navigare (butoanele mici) */
+QPushButton {
+    background-color: #2f3142;
+    border: 1px solid #57606f;
+    border-radius: 6px;
+    color: #ffffff;
+    padding: 4px 10px;
+    font-weight: bold;
+}
+
+QPushButton:hover {
+    background-color: #57606f;
+}
+
+QPushButton:disabled {
+    background-color: #1e1f29;
+    color: #57606f;
+    border: 1px solid #1e1f29;
+}
+
+/* STRATUL DE SUS (Home) - Sticlă albăstruie luminoasă */
+QListWidget#ListaSus {
+    background-color: #1e272e;
+    border: 2px solid #3498db; /* Contur albastru electric */
+    border-radius: 16px;
+    padding: 8px;
+    font-size: 14px;
+}
+
+/* STRATUL DE JOS (Sistem /) - Sticlă verzuie luminoasă */
+QListWidget#ListaJos {
+    background-color: #1e272e;
+    border: 2px solid #2ecc71; /* Contur verde smarald */
+    border-radius: 16px;
+    padding: 8px;
+    font-size: 14px;
+}
+
+/* Elementele din listă (Fișierele și Folderele) */
+QListWidget::item {
+    padding: 8px;
+    border-radius: 6px;
+    color: #ffffff; /* Textul fișierelor devine complet alb */
+}
+
+QListWidget::item:hover {
+    background-color: #2f3542; /* Evidențiere mai vizibilă la hover */
+    color: #00d2d3;
+}
+
+QListWidget::item:selected {
+    background-color: #57606f;
+    color: #ffffff;
+    font-weight: bold;
+}

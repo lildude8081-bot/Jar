@@ -1,0 +1,95 @@
+QWidget {
+    background-color: #242535;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #f1f2f6;
+}
+
+QWidget#CapacBorcan {
+    background-color: #ff9f43;
+    border-radius: 12px;
+}
+
+QWidget#CapacBorcan QLabel {
+    color: #ff3333 !important;
+    background-color: #11111b !important;
+    font-weight: bold;
+    font-size: 15px;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+QWidget#CapacBorcan QPushButton {
+    background-color: #1e1f29;
+    color: #ff9f43;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+QWidget#CapacBorcan QPushButton:hover {
+    background-color: #ffffff;
+    color: #1e1f29;
+}
+
+QWidget#CapacBorcan QPushButton#BtnSettings {
+    background-color: #2f3142;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+QLabel {
+    font-weight: bold;
+    font-size: 13px;
+    color: #ffca28;
+    padding-left: 2px;
+    margin-top: 5px;
+}
+
+QLineEdit {
+    background-color: #2f3142;
+    border: 1px solid #57606f;
+    border-radius: 6px;
+    padding: 5px;
+    color: #ffffff;
+    font-size: 13px;
+}
+
+QPushButton {
+    background-color: #2f3142;
+    border: 1px solid #57606f;
+    border-radius: 6px;
+    color: #ffffff;
+    padding: 4px 10px;
+    font-weight: bold;
+}
+
+QPushButton:hover {
+    background-color: #57606f;
+}
+
+QListWidget {
+    border: 2px solid #45475a;
+    border-radius: 16px;
+    padding: 8px;
+    font-size: 14px;
+    background-color: #1e272e;
+}
+
+QListWidget::item {
+    padding: 8px;
+    border-radius: 6px;
+    color: #ffffff;
+}
+
+QListWidget::item:hover {
+    background-color: #2f3542;
+    color: #00d2d3;
+}
+
+QListWidget::item:selected {
+    background-color: #57606f;
+    color: #ffffff;
+    font-weight: bold;
+}

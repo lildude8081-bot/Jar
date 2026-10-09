@@ -1,0 +1,77 @@
+QWidget {
+    background-color: #f5f6fa;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #2f3640;
+}
+QWidget#CapacBorcan {
+    background-color: #dcdde1;
+    border-radius: 12px;
+}
+QWidget#CapacBorcan QLabel {
+    color: #c23616 !important;
+    background-color: #ffffff !important;
+    font-weight: bold;
+    font-size: 15px;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+QWidget#CapacBorcan QPushButton {
+    background-color: #ffffff;
+    color: #2f3640;
+    border: 1px solid #dcdde1;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-weight: bold;
+    font-size: 12px;
+}
+QWidget#CapacBorcan QPushButton:hover {
+    background-color: #718093;
+    color: #ffffff;
+}
+QLabel {
+    font-weight: bold;
+    font-size: 13px;
+    color: #e84118;
+    padding-left: 2px;
+    margin-top: 5px;
+}
+QLineEdit {
+    background-color: #ffffff;
+    border: 1px solid #cbd2d9;
+    border-radius: 6px;
+    padding: 5px;
+    color: #2f3640;
+    font-size: 13px;
+}
+QPushButton {
+    background-color: #ffffff;
+    border: 1px solid #cbd2d9;
+    border-radius: 6px;
+    color: #2f3640;
+    padding: 4px 10px;
+    font-weight: bold;
+}
+QPushButton:hover {
+    background-color: #f5f6fa;
+}
+QListWidget {
+    border: 1px solid #cbd2d9;
+    border-radius: 16px;
+    padding: 8px;
+    font-size: 14px;
+    background-color: #ffffff;
+}
+QListWidget::item {
+    padding: 8px;
+    border-radius: 6px;
+    color: #2f3640;
+}
+QListWidget::item:hover {
+    background-color: #f5f6fa;
+    color: #10ac84;
+}
+QListWidget::item:selected {
+    background-color: #718093;
+    color: #ffffff;
+    font-weight: bold;
+}
