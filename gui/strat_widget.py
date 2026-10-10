@@ -58,7 +58,12 @@ class StratBorcan(QWidget):
                 if os.path.isdir(os.path.join(self.cale_curenta, e)): fld.append(e)
                 else: fis.append(e)
             fld.sort(key=str.lower); fis.sort(key=str.lower)
-            for f in fld: self.lista.addItem(QListWidgetItem(f"📁 {f}"))
+            for f in fld:
+                if ad and os.access(os.path.join(self.cale_curenta, f), os.R_OK):
+                    try: d = f"   ({len(os.listdir(os.path.join(self.cale_curenta, f)))} elem)"
+                    except Exception: d = ""
+                    self.lista.addItem(QListWidgetItem(f"📁 {f}{d}"))
+                else: self.lista.addItem(QListWidgetItem(f"📁 {f}"))
             for f in fis:
                 d = self.obtine_dimensiune_formatata(os.path.join(self.cale_curenta, f)) if ad else ""
                 self.lista.addItem(QListWidgetItem(f"📄 {f}   ({d})" if ad else f"📄 {f}"))
@@ -70,7 +75,7 @@ class StratBorcan(QWidget):
         L = self.window().limba_curenta if self.window() and hasattr(self.window(), 'limba_curenta') else "ro"
         C = {"ro": ["📋 Copiaza", "✂️ Taie (Cut)", "🗑️ Sterge", "📥 Lipeste aici"], "en": ["📋 Copy", "✂️ Cut", "🗑️ Delete", "📥 Paste here"], "it": ["📋 Copia", "✂️ Taglia", "🗑️ Elimina", "📥 Incolla qui"]}
         if item and ".. (Mergi Inapoi)" not in item.text():
-            tb = item.text()[2:]; el = tb.split("   (").strip() if "   (" in tb else tb; cc = os.path.join(self.cale_curenta, el)
+            tb = item.text()[2:]; el = tb.split("   (")[0].strip() if "   (" in tb else tb; cc = os.path.join(self.cale_curenta, el)
             ac, ax = meniu.addAction(C[L]), meniu.addAction(C[L]); meniu.addSeparator(); ad = meniu.addAction(C[L])
             ap = meniu.addAction(C[L]) if CLIPBOARD_CALE_SURSA and os.path.exists(CLIPBOARD_CALE_SURSA) else None
             sel = meniu.exec(self.lista.mapToGlobal(poz))
@@ -106,6 +111,6 @@ class StratBorcan(QWidget):
         txt = item.text()
         if ".. (Mergi Inapoi)" in txt: self.istoric_inapoi.append(self.cale_curenta); self.istoric_inainte.clear(); self.cale_curenta = os.path.dirname(self.cale_curenta); self.actualizeaza_lista(); self.cale_schimbata.emit()
         else:
-            tb = txt[2:]; el = tb.split("   (").strip() if "   (" in tb else tb; cc = os.path.join(self.cale_curenta, el)
+            tb = txt[2:]; el = tb.split("   (")[0].strip() if "   (" in tb else tb; cc = os.path.join(self.cale_curenta, el)
             if os.path.isdir(cc): self.istoric_inapoi.append(self.cale_curenta); self.istoric_inainte.clear(); self.cale_curenta = cc; self.actualizeaza_lista(); self.cale_schimbata.emit()
             else: subprocess.Popen(['xdg-open', cc], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
