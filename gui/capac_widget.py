@@ -10,30 +10,47 @@ class CapacBorcan(QWidget):
     def init_ui(self):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(15, 10, 15, 10)
+
+        # 1. Cream butonul cu text curat
+        self.btn_titlu = QPushButton("🫙 JAR OPERATOR v1.7.0")
         
-        self.btn_titlu = QPushButton("🫙 JAR OPERATOR")
-        self.btn_titlu.setObjectName("TitluCapac")
+        # 2. Eliminăm vechiul ObjectName ca să păcălim CSS-ul și să aplicăm 10px forțat!
+        self.btn_titlu.setStyleSheet("""
+            QPushButton {
+                font-size: 10px; 
+                font-weight: bold; 
+                color: #fab387; 
+                background-color: #313244; 
+                border: 1px solid #45475a; 
+                border-radius: 4px; 
+                padding: 4px 8px;
+            }
+            QPushButton:hover {
+                background-color: #45475a;
+            }
+        """)
+        
         self.btn_titlu.clicked.connect(self.afiseaza_despre)
         layout.addWidget(self.btn_titlu)
-        
+
         layout.addStretch()
-        
+
         self.btn_move = QPushButton("📦 Mută")
         self.btn_new = QPushButton("📁 Nou")
-        self.btn_rename = QPushButton("✏️ Redenumește") # BUTONUL NOU PE CAPAC!
+        self.btn_rename = QPushButton("✏️ Redenumește")
         self.btn_del = QPushButton("🗑️ Șterge")
         self.btn_places = QPushButton("📍 Locații")
         self.btn_places.clicked.connect(self.deschide_meniu_locatii)
-        
+
         self.btn_lang = QPushButton("🌐 RO")
         self.btn_lang.clicked.connect(self.deschide_meniu_limbi)
-        
+
         self.btn_settings = QPushButton("⚙️")
         self.btn_settings.setObjectName("BtnSettings")
-        
+
         layout.addWidget(self.btn_move)
         layout.addWidget(self.btn_new)
-        layout.addWidget(self.btn_rename) # Îl așezăm în linie
+        layout.addWidget(self.btn_rename)
         layout.addWidget(self.btn_del)
         layout.addWidget(self.btn_places)
         layout.addWidget(self.btn_lang)
