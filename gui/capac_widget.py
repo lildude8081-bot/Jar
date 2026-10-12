@@ -1,4 +1,7 @@
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QPushButton, QLabel
+import os
+import json
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QPushButton, QLabel, QMenu
+from PyQt6.QtCore import Qt
 
 class CapacBorcan(QWidget):
     def __init__(self, parent=None):
@@ -11,36 +14,27 @@ class CapacBorcan(QWidget):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(15, 10, 15, 10)
 
-        # 1. Cream butonul cu text curat
-        self.btn_titlu = QPushButton("🫙 JAR OPERATOR v1.7.0")
-        
-        # 2. Eliminăm vechiul ObjectName ca să păcălim CSS-ul și să aplicăm 10px forțat!
-        self.btn_titlu.setStyleSheet("""
-            QPushButton {
-                font-size: 10px; 
-                font-weight: bold; 
-                color: #fab387; 
-                background-color: #313244; 
-                border: 1px solid #45475a; 
-                border-radius: 4px; 
-                padding: 4px 8px;
-            }
-            QPushButton:hover {
-                background-color: #45475a;
-            }
-        """)
-        
+        # Titlul curat din versiunea 1.7.0
+        self.btn_titlu = QPushButton("🫙 JAR OPERATOR v1.8.0")
+        self.btn_titlu.setObjectName("TitluCapac")
         self.btn_titlu.clicked.connect(self.afiseaza_despre)
         layout.addWidget(self.btn_titlu)
 
         layout.addStretch()
 
+        # Butoanele tale originale de acțiune
         self.btn_move = QPushButton("📦 Mută")
         self.btn_new = QPushButton("📁 Nou")
         self.btn_rename = QPushButton("✏️ Redenumește")
         self.btn_del = QPushButton("🗑️ Șterge")
+        
+        # Meniul de Locații
         self.btn_places = QPushButton("📍 Locații")
         self.btn_places.clicked.connect(self.deschide_meniu_locatii)
+
+        # ⭐ BUTONUL: Favorite - cu suport de traducere dinamică
+        self.btn_fav = QPushButton("⭐ Favorite")
+        self.btn_fav.clicked.connect(self.deschide_meniu_favorite)
 
         self.btn_lang = QPushButton("🌐 RO")
         self.btn_lang.clicked.connect(self.deschide_meniu_limbi)
@@ -48,16 +42,100 @@ class CapacBorcan(QWidget):
         self.btn_settings = QPushButton("⚙️")
         self.btn_settings.setObjectName("BtnSettings")
 
+        # Așezăm butoanele în ordinea ta perfectă
         layout.addWidget(self.btn_move)
         layout.addWidget(self.btn_new)
         layout.addWidget(self.btn_rename)
         layout.addWidget(self.btn_del)
         layout.addWidget(self.btn_places)
+        layout.addWidget(self.btn_fav)
         layout.addWidget(self.btn_lang)
         layout.addWidget(self.btn_settings)
 
+    def obtine_calea_fisier_favorite(self):
+        os.makedirs("assets", exist_ok=True)
+        return "assets/bookmarks.json"
+
+    def incarca_favorite(self):
+        cale_json = self.obtine_calea_fisier_favorite()
+        if not os.path.exists(cale_json):
+            implicit = [os.path.expanduser("~/Lucruri Python")]
+            with open(cale_json, "w", encoding="utf-8") as f:
+                json.dump(implicit, f, indent=4, ensure_ascii=False)
+            return implicit
+        try:
+            with open(cale_json, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return []
+
+    def salveaza_favorite(self, lista_favorite):
+        cale_json = self.obtine_calea_fisier_favorite()
+        try:
+            with open(cale_json, "w", encoding="utf-8") as f:
+                json.dump(lista_favorite, f, indent=4, ensure_ascii=False)
+        except Exception:
+            pass
+
+    def deschide_meniu_favorite(self):
+        meniu = QMenu(self)
+        meniu.setStyleSheet("background-color: #313244; color: #cdd6f4; font-size: 13px;")
+        
+        limba = self.parent_win.limba_curenta if self.parent_win else "ro"
+        favorite = self.incarca_favorite()
+        
+        # Detectăm folderul deschis în stratul activ ca să vedem dacă e deja salvat
+        cale_curenta = None
+        if self.parent_win and hasattr(self.parent_win, 'ultimul_strat_activ') and self.parent_win.ultimul_strat_activ:
+            cale_curenta = self.parent_win.ultimul_strat_activ.cale_curenta
+
+        # Configuram textele dinamic în funcție de limbă
+        txt_actiuni = {
+            "ro": ["➕ Adaugă la favorite", "☆ Elimină din favorite"],
+            "en": ["➕ Add to bookmarks", "☆ Remove from bookmarks"],
+            "it": ["➕ Aggiungi ai preferiti", "☆ Rimuovi dai preferiti"]
+        }
+
+        # Schimbăm dinamic prima opțiune: dacă e salvat arătăm steluța goală (☆), altfel arătăm (➕)
+        if cale_curenta in favorite:
+            act_toggle = meniu.addAction(txt_actiuni[limba][1]) # ☆ Elimină
+            mod_actiune = "elimina"
+        else:
+            act_toggle = meniu.addAction(txt_actiuni[limba][0]) # ➕ Adaugă
+            mod_actiune = "adauga"
+            
+        meniu.addSeparator()
+
+        # Încărcăm restul directoarelor salvate din JSON
+        actiuni_favorite = {}
+        for fav in favorite:
+            nume_afisat = f"⭐ {os.path.basename(fav) if os.path.basename(fav) else fav}"
+            act = meniu.addAction(nume_afisat)
+            act.setToolTip(fav)
+            actiuni_favorite[act] = fav
+
+        # Afișăm meniul dropdown sub steluță
+        actiune = meniu.exec(self.btn_fav.mapToGlobal(self.btn_fav.rect().bottomLeft()))
+        
+        if actiune == act_toggle:
+            if cale_curenta:
+                if mod_actiune == "adauga" and cale_curenta not in favorite:
+                    favorite.append(cale_curenta)
+                elif mod_actiune == "elimina" and cale_curenta in favorite:
+                    favorite.remove(cale_curenta)
+                self.salveaza_favorite(favorite)
+        elif actiune in actiuni_favorite:
+            cale_destinatie = actiuni_favorite[actiune]
+            if self.parent_win and hasattr(self.parent_win, 'ultimul_strat_activ') and self.parent_win.ultimul_strat_activ:
+                strat = self.parent_win.ultimul_strat_activ
+                if os.path.exists(cale_destinatie) and os.path.isdir(cale_destinatie):
+                    strat.istoric_inapoi.append(strat.cale_curenta)
+                    strat.istoric_inainte.clear()
+                    strat.cale_curenta = cale_destinatie
+                    strat.actualizeaza_lista()
+                    strat.cale_schimbata.emit()
+
     def deschide_meniu_locatii(self):
-        from PyQt6.QtWidgets import QMenu
         meniu = QMenu(self)
         meniu.setStyleSheet("background-color: #313244; color: #cdd6f4; font-size: 13px;")
         limba = self.parent_win.limba_curenta if self.parent_win else "ro"
@@ -82,7 +160,6 @@ class CapacBorcan(QWidget):
         elif actiune == act_net: self.parent_win.schimba_calea_strat_activ("network")
 
     def deschide_meniu_limbi(self):
-        from PyQt6.QtWidgets import QMenu
         meniu = QMenu(self)
         meniu.setStyleSheet("background-color: #313244; color: #cdd6f4; font-size: 13px;")
         act_ro = meniu.addAction("🇷🇴 Română")
@@ -90,15 +167,22 @@ class CapacBorcan(QWidget):
         act_it = meniu.addAction("🇮🇹 Italiano")
         
         actiune = meniu.exec(self.btn_lang.mapToGlobal(self.btn_lang.rect().bottomLeft()))
+        
+        # Adăugăm traducerea dinamică și pentru noul buton de favorite în funcție de limba aleasă!
+        txt_buton_fav = {"ro": "⭐ Favorite", "en": "⭐ Bookmarks", "it": "⭐ Preferiti"}
+        
         if actiune == act_ro:
             self.parent_win.schimba_limba("ro")
             self.btn_lang.setText("🌐 RO")
+            self.btn_fav.setText(txt_buton_fav["ro"])
         elif actiune == act_en:
             self.parent_win.schimba_limba("en")
             self.btn_lang.setText("🌐 EN")
+            self.btn_fav.setText(txt_buton_fav["en"])
         elif actiune == act_it:
             self.parent_win.schimba_limba("it")
             self.btn_lang.setText("🌐 IT")
+            self.btn_fav.setText(txt_buton_fav["it"])
 
     def afiseaza_despre(self):
         self.parent_win.afiseaza_despre_tradus()
