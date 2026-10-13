@@ -31,3 +31,32 @@ To install the official compiled package directly on any Debian/Ubuntu-based dis
    sudo dpkg -i linux-jar-file-manager_1.9.0_amd64.deb
    ```
 3. Launch the application from your desktop applications menu or simply type `jar` in any terminal window!
+
+## 📋 Prerequisites
+
+Make sure you have Python 3 and PyQt6 installed on your Linux machine (Ubuntu, Linux Mint, Debian, etc.):
+
+```bash
+sudo apt update
+sudo apt install python3-pyqt6
+```
+
+## 🚀 Installation & Running
+
+Clone this project or navigate to your local repository directory, make the main window executable, and run it:
+
+```bash
+chmod +x main_window.py
+./main_window.py
+```
+
+## 📦 How to Install (.deb Package)
+
+To install the official compiled package directly on any Debian/Ubuntu-based distribution (including elementary OS), follow these steps:
+
+1. Download the latest `.deb` package file from this repository.
+2. Open your terminal in the download directory and run:
+   ```bash
+   sudo dpkg -i linux-jar-file-manager_1.9.0_amd64.deb
+   ```
+3. Launch the application from your desktop applications menu or simply type `jar` in any terminal window!
