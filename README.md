@@ -21,17 +21,6 @@ Unlike traditional twin-panel file managers, **Linux Jar File Manager** organize
 * **Smart Bookmarks & Favorites (⭐ v1.8.0):** Quick dropdown navigation menu located right next to fixed system paths. Save your favorite workspace folders dynamically with smart empty/filled star toggles (⭐/☆) and persistent JSON synchronization.
 * **Secret Camouflage Mode (🎭 v1.9.0):** Hit **`F2`** to instantly hide your entire development workspace and file listings behind an innocent, fully internationalized dashboard showing traditional pickle recipes from Cecina! Press **`F2`** again to drop the disguise and return safely to your files.
 
-## 📦 How to Install (.deb Package)
-
-To install the official compiled package directly on any Debian/Ubuntu-based distribution (including elementary OS), follow these steps:
-
-1. Download the latest `.deb` package file from this repository.
-2. Open your terminal in the download directory and run:
-   ```bash
-   sudo dpkg -i linux-jar-file-manager_1.9.0_amd64.deb
-   ```
-3. Launch the application from your desktop applications menu or simply type `jar` in any terminal window!
-
 ## 📋 Prerequisites
 
 Make sure you have Python 3 and PyQt6 installed on your Linux machine (Ubuntu, Linux Mint, Debian, etc.):
