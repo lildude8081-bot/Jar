@@ -92,17 +92,57 @@ class JarFileManager(QWidget):
         QShortcut(QKeySequence("Ctrl+N"), self).activated.connect(self.actiune_folder_nou)
 
     def actiune_refresh_liste(self):
+        """ Readuce instantaneu straturile la starea de pornire (Sus la User, Jos la Sistem) """
+        import os
+        
+        # 1. Resetăm stratul de sus în folderul User (/home/mihai)
+        cale_user = os.path.expanduser('~')
+        self.strat_sus.istoric_inapoi.append(self.strat_sus.cale_curenta)
+        self.strat_sus.istoric_inainte.clear()
+        self.strat_sus.cale_curenta = cale_user
         self.strat_sus.actualizeaza_lista()
+        self.strat_sus.cale_schimbata.emit()
+
+        # 2. Resetăm stratul de jos în folderul de Sistem (/)
+        self.strat_jos.istoric_inapoi.append(self.strat_jos.cale_curenta)
+        self.strat_jos.istoric_inainte.clear()
+        self.strat_jos.cale_curenta = "/"
         self.strat_jos.actualizeaza_lista()
+        self.strat_jos.cale_schimbata.emit()
 
     def afiseaza_despre_tradus(self):
         QMessageBox.information(self, self.traduceri[self.limba_curenta]["titlu_despre"], self.traduceri[self.limba_curenta]["gluma"])
 
     def incarca_stil_css(self):
+        import json
+        cale_setari = os.path.join(os.path.dirname(__file__), 'assets', 'settings.json')
+        
+        # Verificăm dacă apelul vine din inițializare (când citim de pe disc)
+        # sau din interfață (când utilizatorul tocmai a schimbat bifa)
+        if not hasattr(self, '_stil_initializat'):
+            self._stil_initializat = True
+            if os.path.exists(cale_setari):
+                try:
+                    with open(cale_setari, 'r', encoding='utf-8') as f:
+                        setari = json.load(f)
+                        self.tema_intunecata = setari.get('tema_intunecata', True)
+                except:
+                    self.tema_intunecata = True
+        else:
+            # Dacă utilizatorul a schimbat tema din meniu, salvăm noua stare pe disc
+            try:
+                os.makedirs(os.path.dirname(cale_setari), exist_ok=True)
+                with open(cale_setari, 'w', encoding='utf-8') as f:
+                    json.dump({'tema_intunecata': self.tema_intunecata}, f, indent=4)
+            except:
+                pass
+
+        # Aplicăm fișierul corespunzător conform valorii finale
         S = 'styles.css' if self.tema_intunecata else 'styles_light.css'
         cale = os.path.join(os.path.dirname(__file__), 'assets', S)
         if os.path.exists(cale):
-            with open(cale, 'r') as f: self.setStyleSheet(f.read())
+            with open(cale, 'r', encoding='utf-8') as f: 
+                self.setStyleSheet(f.read())
 
     def schimba_calea_strat_activ(self, tip):
         T = self.ultimul_strat_activ if self.ultimul_strat_activ else self.strat_jos
