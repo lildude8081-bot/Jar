@@ -14,8 +14,8 @@ class CapacBorcan(QWidget):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(15, 10, 15, 10)
 
-        # Titlul curat din versiunea 1.7.0
-        self.btn_titlu = QPushButton("🫙 JAR OPERATOR v1.8.0")
+        # Titlul curat din versiunea 1.9.0
+        self.btn_titlu = QPushButton("🫙 JAR OPERATOR v1.9.0")
         self.btn_titlu.setObjectName("TitluCapac")
         self.btn_titlu.clicked.connect(self.afiseaza_despre)
         layout.addWidget(self.btn_titlu)
@@ -84,29 +84,26 @@ class CapacBorcan(QWidget):
         limba = self.parent_win.limba_curenta if self.parent_win else "ro"
         favorite = self.incarca_favorite()
         
-        # Detectăm folderul deschis în stratul activ ca să vedem dacă e deja salvat
+        # Detectăm folderul deschis în stratul activ
         cale_curenta = None
         if self.parent_win and hasattr(self.parent_win, 'ultimul_strat_activ') and self.parent_win.ultimul_strat_activ:
             cale_curenta = self.parent_win.ultimul_strat_activ.cale_curenta
 
-        # Configuram textele dinamic în funcție de limbă
-        txt_actiuni = {
-            "ro": ["➕ Adaugă la favorite", "☆ Elimină din favorite"],
-            "en": ["➕ Add to bookmarks", "☆ Remove from bookmarks"],
-            "it": ["➕ Aggiungi ai preferiti", "☆ Rimuovi dai preferiti"]
-        }
+        # Traduceri pentru opțiunile de bază
+        txt_adauga = {"ro": "➕ Adaugă locația curentă", "en": "➕ Add current location", "it": "➕ Aggiungi posizione corrente"}
+        txt_elimina = {"ro": "☆ Elimină locația curentă", "en": "☆ Remove current location", "it": "Rimuovi posizione corrente"}
 
-        # Schimbăm dinamic prima opțiune: dacă e salvat arătăm steluța goală (☆), altfel arătăm (➕)
+        # Dacă folderul curent este deja în JSON, arătăm steluța goală (☆) ca să-l scoată instant!
         if cale_curenta in favorite:
-            act_toggle = meniu.addAction(txt_actiuni[limba][1]) # ☆ Elimină
+            act_toggle = meniu.addAction(txt_elimina[limba])
             mod_actiune = "elimina"
         else:
-            act_toggle = meniu.addAction(txt_actiuni[limba][0]) # ➕ Adaugă
+            act_toggle = meniu.addAction(txt_adauga[limba])
             mod_actiune = "adauga"
             
         meniu.addSeparator()
 
-        # Încărcăm restul directoarelor salvate din JSON
+        # Afișăm restul directoarelor salvate în listă
         actiuni_favorite = {}
         for fav in favorite:
             nume_afisat = f"⭐ {os.path.basename(fav) if os.path.basename(fav) else fav}"
@@ -114,9 +111,10 @@ class CapacBorcan(QWidget):
             act.setToolTip(fav)
             actiuni_favorite[act] = fav
 
-        # Afișăm meniul dropdown sub steluță
+        # Deschidem meniul dropdown direct sub buton
         actiune = meniu.exec(self.btn_fav.mapToGlobal(self.btn_fav.rect().bottomLeft()))
         
+        # Executăm acțiunea instantaneu, fără ferestre secundare!
         if actiune == act_toggle:
             if cale_curenta:
                 if mod_actiune == "adauga" and cale_curenta not in favorite:

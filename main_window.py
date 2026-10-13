@@ -40,7 +40,7 @@ class JarFileManager(QWidget):
         self.layout_principal = QVBoxLayout(self)
         self.layout_principal.setContentsMargins(25, 20, 25, 25)
         self.layout_principal.setSpacing(10)
-        
+
         self.capac = CapacBorcan(self)
         self.capac.btn_move.clicked.connect(self.actiune_mutare)
         self.capac.btn_new.clicked.connect(self.actiune_folder_nou)
@@ -48,21 +48,178 @@ class JarFileManager(QWidget):
         self.capac.btn_del.clicked.connect(self.actiune_stergere)
         self.capac.btn_settings.clicked.connect(self.deschide_meniu_setari)
         self.layout_principal.addWidget(self.capac)
-        
+
         self.lbl_sus = QLabel()
         self.layout_principal.addWidget(self.lbl_sus)
         self.strat_sus = StratBorcan(os.path.expanduser('~'), "ListaSus", self)
         self.strat_sus.lista.itemSelectionChanged.connect(lambda: self.set_strat_activ(self.strat_sus))
         self.layout_principal.addWidget(self.strat_sus)
-        
+
         self.lbl_jos = QLabel()
         self.layout_principal.addWidget(self.lbl_jos)
         self.strat_jos = StratBorcan("/", "ListaJos", self)
         self.strat_jos.lista.itemSelectionChanged.connect(lambda: self.set_strat_activ(self.strat_jos))
         self.layout_principal.addWidget(self.strat_jos)
-        
+
+        # --- COMPONENTĂ NOUĂ: WIDGET-UL DE CAMUFLAJ (v1.9.0) ---
+        from PyQt6.QtWidgets import QListWidget
+        self.lista_camuflaj = QListWidget(self)
+        self.lista_camuflaj.setStyleSheet("""
+            QListWidget {
+                background-color: #11111b;
+                color: #fab387;
+                font-size: 14px;
+                font-weight: bold;
+                border: 2px dashed #fab387;
+                border-radius: 8px;
+                padding: 10px;
+            }
+        """)
+        self.lista_camuflaj.itemClicked.connect(self.actiune_afiseaza_reteta_detaliata)
+        # Umplem lista cu rețete fictive de murături ca să pară o aplicație inofensivă
+        retete = [
+            "📋 REȚETAR OFICIAL - CĂMARA LUI MIHAI (CECINAS)",
+            "🫙 1. Rețetă Castraveți murați în oțet cu boabe de muștar",
+            "🫙 2. Secretul gogonelelor tari și crocante pentru iarnă",
+            "🫙 3. Gogoșari umpluți cu conopidă în saramură fiartă",
+            "🫙 4. Varză roșie tocată cu hrean și ardei iute",
+            "🫙 5. Conopidă murată cu morcov și foi de dafin",
+            "📌 SFAT DE GOSPODAR: Păstrați butoiul la temperatură constantă în pivniță!"
+        ]
+        self.lista_camuflaj.addItems(retete)
+        self.layout_principal.addWidget(self.lista_camuflaj)
+        self.lista_camuflaj.hide() # Ascunsă implicit la pornire
+
+        self.camuflaj_activ = False
+
         self.schimba_limba(self.limba_curenta)
         self.actiune_refresh_liste()
+
+    def keyPressEvent(self, event):
+        """ Prinde tasta F2 pentru a activa/dezactiva camuflajul instant (v1.9.0) """
+        from PyQt6.QtCore import Qt
+        if event.key() == Qt.Key.Key_F2:
+            self.actiune_toggle_camuflaj()
+        else:
+            super().keyPressEvent(event)
+
+    def actiune_toggle_camuflaj(self):
+        """ Schimbă starea dintre fișierele reale și modul murături tradus dinamic (v1.9.0) """
+        self.camuflaj_activ = not self.camuflaj_activ
+        
+        # Baza de date locală autonomă pentru titluri
+        titluri_camuflaj = {
+            "ro": [
+                "🫙 1. Castraveți murați în oțet cu boabe de muștar",
+                "🫙 2. Secretul gogonelelor tari și crocante pentru iarnă",
+                "🫙 3. Gogoșari umpluți cu conopidă în saramură fiartă",
+                "🫙 4. Varză roșie tocată cu hrean și ardei iute",
+                "🫙 5. Conopidă murată cu morcov și foi de dafin"
+            ],
+            "en": [
+                "🫙 1. Pickled Cucumbers in vinegar with mustard seeds",
+                "🫙 2. The secret of crunchy pickled green tomatoes for winter",
+                "🫙 3. Bell peppers stuffed with cauliflower in hot brine",
+                "🫙 4. Shredded red cabbage with horseradish and chili pepper",
+                "🫙 5. Pickled cauliflower with carrots and bay leaves"
+            ],
+            "it": [
+                "🫙 1. Cetrioli sott'aceto con semi di senape",
+                "🫙 2. Il segreto dei pomodori verdi sott'aceto croccanti per l'inverno",
+                "🫙 3. Peperoni ripieni di cavolfiore in salamoia calda",
+                "🫙 4. Cavolo rosso tritato con rafano e peperoncino",
+                "🫙 5. Cavolfiore sott'aceto con carote e foglie di alloro"
+            ]
+        }
+        
+        limba = self.limba_curenta if hasattr(self, 'limba_curenta') else 'ro'
+        
+        if self.camuflaj_activ:
+            # --- ACTIVĂM MODUL GOSPODĂRIE ---
+            self.strat_sus.hide()
+            self.strat_jos.hide()
+            self.lbl_sus.hide()
+            self.lbl_jos.hide()
+            
+            if hasattr(self.capac, 'btn_move'): self.capac.btn_move.hide()
+            if hasattr(self.capac, 'btn_new'): self.capac.btn_new.hide()
+            if hasattr(self.capac, 'btn_rename'): self.capac.btn_rename.hide()
+            if hasattr(self.capac, 'btn_del'): self.capac.btn_del.hide()
+            if hasattr(self.capac, 'btn_places'): self.capac.btn_places.hide()
+            if hasattr(self.capac, 'btn_fav'): self.capac.btn_fav.hide()
+            
+            # Încărcăm elementele direct din dicționarul local în funcție de limbă
+            self.lista_camuflaj.clear()
+            self.lista_camuflaj.addItems(titluri_camuflaj.get(limba, titluri_camuflaj['ro']))
+            
+            if hasattr(self.capac, 'btn_titlu'): 
+                txt_titlu = {"ro": "📋 REȚETE BORCAN v1.9.0", "en": "📋 JAR RECIPES v1.9.0", "it": "📋 RICETTE BARATTOLO v1.9.0"}
+                self.capac.btn_titlu.setText(txt_titlu.get(limba, txt_titlu['ro']))
+            
+            self.lista_camuflaj.show()
+        else:
+            # --- DESCAMUFLARE INSTANTANEE ---
+            self.lista_camuflaj.hide()
+            self.strat_sus.show()
+            self.strat_jos.show()
+            self.lbl_sus.show()
+            self.lbl_jos.show()
+            
+            if hasattr(self.capac, 'btn_move'): self.capac.btn_move.show()
+            if hasattr(self.capac, 'btn_new'): self.capac.btn_new.show()
+            if hasattr(self.capac, 'btn_rename'): self.capac.btn_rename.show()
+            if hasattr(self.capac, 'btn_del'): self.capac.btn_del.show()
+            if hasattr(self.capac, 'btn_places'): self.capac.btn_places.show()
+            if hasattr(self.capac, 'btn_fav'): self.capac.btn_fav.show()
+            
+            if hasattr(self.capac, 'btn_titlu'): 
+                self.capac.btn_titlu.setText("🫙 JAR OPERATOR v1.9.0")
+
+    def actiune_afiseaza_reteta_detaliata(self, item):
+        """ Afișează conținutul complet al rețetei selectate la click (v1.9.0) """
+        text_element = item.text()
+        numar_reteta = None
+        if '1.' in text_element: numar_reteta = '1'
+        elif '2.' in text_element: numar_reteta = '2'
+        elif '3.' in text_element: numar_reteta = '3'
+        elif '4.' in text_element: numar_reteta = '4'
+        elif '5.' in text_element: numar_reteta = '5'
+        
+        if numar_reteta:
+            continut_retete = {
+                'ro': {
+                    '1': '🥒 CASTRAVEȚI MURAȚI ÎN OȚET\n\nSe spală castraveții și se așază strâns în borcan. Se adaugă căței de usturoi și boabe de muștar. Se fierbe compoziția de apă cu oțet (1 la 3), sare și zahăr, apoi se toarnă fierbinte în borcan. Se închide ermetic!',
+                    '2': '🍅 SECRETUL GOGONELELOR TARI\n\nHreanul din belșug este secretul pentru a le păstra tari! Se pun gogonelele alternativ cu feliile de morcov și bucățile de hrean în butoi. Se toarnă saramura caldă (1 lingură sare la 1L apă).',
+                    '3': '🫑 GOGOȘARI UMPLUȚI CU CONOPIDĂ\n\nSe curăță gogoșarii de cotor. În interiorul fiecăruia se pune câte o bucată de conopidă crudă. Se așază frumos în borcan și se toarnă compoziția fiartă de oțet dulce-acrișor.',
+                    '4': '🥬 VARZĂ ROȘIE CU HREAN\n\nVarza se toacă mărunt, se freacă bine cu sare grunjoasă și se amestecă cu hreanul iute dat pe răzătoare. Se presează extrem de bine în borcan până își lasă zeama proprie.',
+                    '5': '🥦 CONOPIDĂ MURATĂ CU MORCOV\n\nBucățile de conopidă se spală și se aranjează estetic alături de rondele de morcov și foi de dafin. Se adaugă saramura simplă fiartă și se pune capacul.'
+                },
+                'en': {
+                    '1': '🥒 PICKLED CUCUMBERS IN VINEGAR\n\nWash the cucumbers and pack tightly into the jar. Add garlic cloves and mustard seeds. Boil water and vinegar mixture (1:3) with salt and sugar, pour hot into the jar. Seal tightly!',
+                    '2': '🍅 THE SECRET OF CRUNCHY GREEN TOMATOES\n\nPlenty of horseradish is the secret to keeping them crunchy! Layer tomatoes with carrot slices and horseradish. Pour warm brine (1 tbsp salt per 1L water) and let it ferment.',
+                    '3': '🫑 BELL PEPPERS STUFFED WITH CAULIFLOWER\n\nCore the red peppers. Place a raw cauliflower floret inside each pepper. Pack into the jar and pour the boiled sweet and sour vinegar mixture over them.',
+                    '4': '🥬 SHREDDED RED CABBAGE WITH HORSERADISH\n\nShred the cabbage finely, rub well with rock salt, and mix with spicy horseradish. Press down extremely hard in the jar until it releases its own juice.',
+                    '5': '🥦 PICKLED CAULIFLOWER WITH CARROTS\n\nWash cauliflower florets and arrange with carrot rounds and bay leaves. Add boiled simple brine and close the lid.'
+                },
+                'it': {
+                    '1': '🥒 CETRIOLI SOTT\'ACETO\n\nLavare i cetrioli e metterli stretti nel barattolo. Aggiungere aglio e semi di senape. Far bollire acqua e aceto (3:1) con sale e zucchero, versare caldo e chiudere ermeticamente!',
+                    '2': '🍅 IL SEGRETO DEI POMODORI VERDI SOTT\'ACETO\n\nIl rafano in abbondanza è il segreto per mantenerli sodi! Mettere i pomodori alternati a fette di carota e pezzi di rafano. Versare la salamoia tiepida (1 cucchiaio di sale per 1L d\'acqua).',
+                    '3': '🫑 PEPERONI RIPIENI DI CAVOLFIORE\n\nSvuotare i peperoni dal torsolo. Mettere una cimetta di cavolfiore crudo dentro ogni peperone. Sistemarli nel barattolo e versare la miscela bollente di aceto agrodolce.',
+                    '4': '🥬 CAVOLO ROSSO TRITATO CON RAFANO\n\nTritare il cavolo, strofinarlo con sale grosso e mescolarlo con il rafano piccante. Premerlo molto bene nel barattolo finché non rilascia il proprio succo.',
+                    '5': '🥦 CAVOLFIORE SOTT\'ACETO CON CAROTE\n\nLavare le cimette di cavolfiore e sistemarle con le carote e le foglie di alloro. Aggiungere la salamoia semplice bollente e chiudere il tappo.'
+                }
+            }
+            
+            limba = self.limba_curenta if hasattr(self, 'limba_curenta') else 'ro'
+            continut = continut_retete.get(limba, continut_retete['ro']).get(numar_reteta, '')
+            
+            from PyQt6.QtWidgets import QMessageBox
+            msg = QMessageBox(self)
+            msg.setWindowTitle(item.text())
+            msg.setText(continut)
+            msg.setIcon(QMessageBox.Icon.Information)
+            msg.setStyleSheet("background-color: #1e1e2e; color: #cdd6f4; font-size: 14px;")
+            msg.exec()
 
     def set_strat_activ(self, strat):
         self.ultimul_strat_activ = strat
