@@ -59,7 +59,7 @@ class CapacBorcan(QWidget):
     def incarca_favorite(self):
         cale_json = self.obtine_calea_fisier_favorite()
         if not os.path.exists(cale_json):
-            implicit = [os.path.expanduser("~/Lucruri Python")]
+            implicit = []
             with open(cale_json, "w", encoding="utf-8") as f:
                 json.dump(implicit, f, indent=4, ensure_ascii=False)
             return implicit
@@ -84,46 +84,54 @@ class CapacBorcan(QWidget):
         limba = self.parent_win.limba_curenta if self.parent_win else "ro"
         favorite = self.incarca_favorite()
         
-        # Detectăm folderul deschis în stratul activ
         cale_curenta = None
         if self.parent_win and hasattr(self.parent_win, 'ultimul_strat_activ') and self.parent_win.ultimul_strat_activ:
             cale_curenta = self.parent_win.ultimul_strat_activ.cale_curenta
 
-        # Traduceri pentru opțiunile de bază
-        txt_adauga = {"ro": "➕ Adaugă locația curentă", "en": "➕ Add current location", "it": "➕ Aggiungi posizione corrente"}
-        txt_elimina = {"ro": "☆ Elimină locația curentă", "en": "☆ Remove current location", "it": "Rimuovi posizione corrente"}
+        # Traduceri pentru acțiuni
+        txt_adauga = {"ro": "➕ Adaugă locația curentă la favorite", "en": "➕ Add current location to favorites", "it": "➕ Aggiungi posizione corrente ai preferiti"}
+        txt_sub_sterge = {"ro": "❌ Șterge o locație din favorite", "en": "❌ Remove a favorite location", "it": "❌ Rimuovi una posizione preferita"}
 
-        # Dacă folderul curent este deja în JSON, arătăm steluța goală (☆) ca să-l scoată instant!
+        # 1. Opțiunea de adăugare nelimitată (rămâne mereu activă)
+        act_adauga = meniu.addAction(txt_adauga[limba])
         if cale_curenta in favorite:
-            act_toggle = meniu.addAction(txt_elimina[limba])
-            mod_actiune = "elimina"
-        else:
-            act_toggle = meniu.addAction(txt_adauga[limba])
-            mod_actiune = "adauga"
+            act_adauga.setEnabled(False) # Dezactivată doar ca să nu punem duplicate din greșeală
             
+        # 2. Sub-meniu dedicat pentru ȘTERGERE DIRECTĂ (apare doar dacă avem ce șterge)
+        sub_meniu_stergere = None
+        actiuni_stergere = {}
+        if favorite:
+            sub_meniu_stergere = meniu.addMenu(txt_sub_sterge[limba])
+            sub_meniu_stergere.setStyleSheet("background-color: #313244; color: #f38ba8;")
+            for fav in favorite:
+                act_st = sub_meniu_stergere.addAction(f"🗑️ {os.path.basename(fav) if os.path.basename(fav) else fav}")
+                act_st.setToolTip(fav)
+                actiuni_stergere[act_st] = fav
+                
         meniu.addSeparator()
 
-        # Afișăm restul directoarelor salvate în listă
-        actiuni_favorite = {}
+        # 3. LISTA DIRECTĂ: Click pe folder te trimite direct în el, fără ferestre!
+        actiuni_navigare = {}
         for fav in favorite:
-            nume_afisat = f"⭐ {os.path.basename(fav) if os.path.basename(fav) else fav}"
+            nume_afisat = f"📂 {os.path.basename(fav) if os.path.basename(fav) else fav}"
             act = meniu.addAction(nume_afisat)
             act.setToolTip(fav)
-            actiuni_favorite[act] = fav
+            actiuni_navigare[act] = fav
 
-        # Deschidem meniul dropdown direct sub buton
+        # Deschidem meniul dropdown
         actiune = meniu.exec(self.btn_fav.mapToGlobal(self.btn_fav.rect().bottomLeft()))
         
-        # Executăm acțiunea instantaneu, fără ferestre secundare!
-        if actiune == act_toggle:
-            if cale_curenta:
-                if mod_actiune == "adauga" and cale_curenta not in favorite:
-                    favorite.append(cale_curenta)
-                elif mod_actiune == "elimina" and cale_curenta in favorite:
-                    favorite.remove(cale_curenta)
+        # Executarea acțiunilor instant, dintr-un singur click!
+        if actiune == act_adauga and cale_curenta and cale_curenta not in favorite:
+            favorite.append(cale_curenta)
+            self.salveaza_favorite(favorite)
+        elif actiune in actiuni_stergere:
+            cale_de_sters = actiuni_stergere[actiune]
+            if cale_de_sters in favorite:
+                favorite.remove(cale_de_sters)
                 self.salveaza_favorite(favorite)
-        elif actiune in actiuni_favorite:
-            cale_destinatie = actiuni_favorite[actiune]
+        elif actiune in actiuni_navigare:
+            cale_destinatie = actiuni_navigare[actiune]
             if self.parent_win and hasattr(self.parent_win, 'ultimul_strat_activ') and self.parent_win.ultimul_strat_activ:
                 strat = self.parent_win.ultimul_strat_activ
                 if os.path.exists(cale_destinatie) and os.path.isdir(cale_destinatie):
